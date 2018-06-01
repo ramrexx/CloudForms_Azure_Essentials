@@ -1,0 +1,69 @@
+---
+- name: Create resource group
+  azure_rm_resourcegroup:
+    name: "{{ resource_group }}"
+    location: "{{ location }}"
+  register: create_resource_group_output
+  when: resource_group is defined
+
+- name: Log create_resource_group_output
+  debug: 
+    var: create_resource_group_output
+  when: verbose and create_resource_group_output is defined
+
+- name: Create virtual network
+  azure_rm_virtualnetwork:
+    resource_group: "{{ resource_group }}"
+    name: "{{ network_name }}"
+    address_prefixes: "{{ network_cidr }}"
+  register: create_virtual_network_output
+
+- name: Log create_virtual_network_output
+  debug: 
+    var: create_virtual_network_output
+  when: verbose and create_virtual_network_output is defined
+
+- name: Create subnet
+  azure_rm_subnet:
+    resource_group: "{{ resource_group }}"
+    name: "{{ subnet_name }}"
+    address_prefix: "{{ subnet_cidr }}"
+    virtual_network: "{{ network_name }}"
+  register: create_subnet_output
+
+- name: Log create_subnet_output
+  debug: 
+    var: create_subnet_output
+  when: verbose and create_subnet_output is defined
+
+- name: Provision azure instance
+  azure_rm_virtualmachine:
+    resource_group: "{{ resource_group }}"
+    name: "{{ vm_name }}"
+    vm_size: "{{ vm_size }}"
+    admin_username: "{{ admin_username }}"
+    admin_password: "{{ admin_password }}"
+    ssh_public_keys: "{{ ssh_keys }}"
+    image:
+      offer: "{{ offer }}"
+      publisher: "{{ publisher }}"
+      sku: "{{ sku }}"
+      version: "{{ version }}"
+  register: azure_created_vms
+
+- name: Log azure_created_vms
+  debug: 
+    var: azure_created_vms
+  when: verbose and azure_created_vms is defined
+
+- name: Log azure_created_vms.ansible_facts.azure_vm.id
+  debug: 
+    var: azure_created_vms.ansible_facts.azure_vm.id
+  when: verbose and azure_created_vms is defined
+
+- name: Add azure_created_vms to a group
+  add_host: 
+    name: "{{ azure_created_vms.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+    groups: azure_hosts
+  when: azure_created_vms is defined
+

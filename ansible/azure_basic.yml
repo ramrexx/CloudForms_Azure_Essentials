@@ -1,0 +1,21 @@
+---
+- name: azure_basic
+  hosts: localhost
+  gather_facts: false
+      
+  roles:
+    - role: azure_basic_preprovision
+      when: manageiq is defined
+
+    - role: azure_basic_provision
+
+    - role: azure_basic_postprovision
+      when: manageiq is defined
+
+- name: Perform tasks on instances
+  hosts: azure_hosts
+  #become: true
+  #gather_facts: false
+
+  roles:
+    - role: azure_basic_runonce
