@@ -1,24 +1,24 @@
 ---
 # azure parameters
-location: westus2
+location: westus
 resource_group: resgroup1
-network_name: "{{ resource_group }}-network" 
+network_name: "{{ resource_group }}-network"
 network_cidr: 10.10.0.0/16
 subnet_name: "{{ resource_group }}-subnet"
 subnet_cidr: 10.10.0.0/24
 
 # azure image parameters
-publisher: OpenLogic
-offer: CentOS
+publisher: RedHat
+offer: RHEL
 version: latest
-sku: 7.4
+sku: 7.5
 
 # azure guest parameters
 vm_name: myazurevm1
 vm_size: Standard_A1
-admin_username: 
-admin_password: 
-ssh_keys: 
+admin_username:
+admin_password:
+ssh_keys:
 
 # enable debugging
 verbose: false
